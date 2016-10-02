@@ -10,11 +10,11 @@ import java.util.Map;
 /**
  * Created by Valentina on 02.10.2016.
  */
-public class LogHandler implements InvocationHandler {
+public class CacheHandler implements InvocationHandler {
     private final Object delegate;
     Map<Integer, Integer> cache;
 
-    public LogHandler(Object delegate) {
+    public CacheHandler(Object delegate) {
         this.delegate = delegate;
         cache=new HashMap<>();
     }

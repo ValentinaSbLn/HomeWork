@@ -12,7 +12,7 @@ public class Test {
 
         MultiplyFor proxyMulti=(MultiplyFor) Proxy.newProxyInstance(MultiplyForTwo.class.getClassLoader(),
                 MultiplyForTwo.class.getInterfaces(),
-                new LogHandler(mult));
+                new CacheHandler(mult));
 
         int a=proxyMulti.multiply(5);
         int b=proxyMulti.multiply(6);
