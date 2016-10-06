@@ -22,4 +22,10 @@ public class MultiplyForTwo implements MultiplyFor {
         return mult;
     }
 
+    @Override
+    @Cache
+    public int multiplyCount(int d) {
+        return d * d;
+    }
+
 }

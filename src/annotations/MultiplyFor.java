@@ -10,11 +10,18 @@ public interface MultiplyFor {
     *@return результат умножения
      */
     @Cache
-    public int multiply(int d);
+    int multiply(int d);
 
     /*
    *@params d - степень
    *@return результат возведения в степень
     */
-    public int powOfTwo(int d);
+    int powOfTwo(int d);
+
+    /*
+   *@params d - показатель степень
+   *@return результат возведения в квадрат числа
+    */
+    @Cache
+    int multiplyCount(int d);
 }
