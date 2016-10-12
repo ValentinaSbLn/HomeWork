@@ -20,11 +20,9 @@ public class EncryptedClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         File file = new File(dir + "/" + name.substring(name.lastIndexOf(".")+1, name.length())+".encrpt_class");
-        System.out.println("file "+file+" getPath "+file.getPath());
         byte[] byteDecript = encrypter.decript(file);
-
-        System.out.println("byteDecript"+byteDecript.length);
         return defineClass(name, byteDecript, 0, byteDecript.length);
     }
+
 }
 
