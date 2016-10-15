@@ -1,5 +1,7 @@
 package annotations;
 
+import static annotations.CacheType.FILE;
+
 /**
  * Created by Valentina on 02.10.2016.
  */
@@ -9,7 +11,7 @@ public interface MultiplyFor {
     *@params d - число, на которое будет умножжаться
     *@return результат умножения
      */
-    @Cache
+    @Cache(cacheType= FILE)
     int multiply(int d);
 
     /*

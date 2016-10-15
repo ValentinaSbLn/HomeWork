@@ -5,14 +5,14 @@ import java.lang.reflect.Proxy;
 /**
  * Created by Valentina on 02.10.2016.
  */
-public class Test {
+public class Main {
     public static void main(String[] args) {
 
         MultiplyForTwo mult = new MultiplyForTwo();
 
         MultiplyFor proxyMulti=(MultiplyFor) Proxy.newProxyInstance(MultiplyForTwo.class.getClassLoader(),
                 MultiplyForTwo.class.getInterfaces(),
-                new CacheHandler(mult));
+                new CacheHandlerWithClass(mult));
 
         int a=proxyMulti.multiply(5);
         int b=proxyMulti.multiply(6);

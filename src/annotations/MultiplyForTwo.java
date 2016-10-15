@@ -1,5 +1,7 @@
 package annotations;
 
+import static annotations.CacheType.*;
+
 /**
  * Created by Valentina on 02.10.2016.
  */
@@ -8,7 +10,7 @@ public class MultiplyForTwo implements MultiplyFor {
     private final int two = 2;
 
     @Override
-    @Cache
+    @Cache(cacheType= FILE)
     public int multiply(int d) {
         return two * d;
     }
