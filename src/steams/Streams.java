@@ -9,65 +9,45 @@ import java.util.stream.Stream;
 /**
  * Created by Valentina on 15.10.2016.
  */
-public class Streams <T>{
+public class Streams<T> implements StreamsInterface<T> {
+    private final Collection<? extends T> data;
 
-    private final List<T> list;
+    private final Queue<Function<Streams, Streams>> queueFunction = new ArrayDeque<>();
 
-    public Streams(List<T> list) {
-        this.list = list;
+    public Streams(Collection<? extends T> data) {
+        this.data = data;
     }
 
-    /**
-     * Статический метод, который принимает коллекцию и создает новый объект Streams
-     * @param list<T>
-     * @return новый объект Streams
-     */
-    public static <T> Streams<T> of(List<? extends T> list) {
-        List<T> streamList = new ArrayList<>();
-        streamList.addAll(list);
-        return new Streams<>(streamList);
-    }
-
-    /**
-     * Метод, который оставляет в коллекции только те элементы, которые удовлетворяют условию в лямбде.
-     * @param predicate - лямбда выражение с условием для фильтрации данных
-     * @return  объект Streams
-     */
+    @Override
     public Streams<T> filter(Predicate<? super T> predicate) {
-        Iterator<T> iterator = this.list.iterator();
-        while (iterator.hasNext()) {
-            T next = iterator.next();
-            if (!predicate.test(next))
-                iterator.remove();
-        }
+        queueFunction.add(p -> new Streams(Arrays.asList(p.data.stream().filter(e -> predicate.test((T) e)).toArray())));
         return this;
     }
 
-    /**
-     * Метод, который преобразует элемент в другой.
-     * @param function - параметр, по которому происходит преобразование
-     * @return объект Streams с эелементами типа R
-     */
+    @Override
     public <R> Streams<R> transform(Function<? super T, ? extends R> function) {
-        List<R> funcList = new ArrayList();
-        for (T t : this.list) {
-            funcList.add(function.apply(t));
-        }
-        return new Streams(funcList);
+        queueFunction.add(p -> {
+                    List<R> funcList = new ArrayList();
+                    p.data.forEach(e -> funcList.add(function.apply((T) e)));
+                    return new Streams<>(funcList);
+                }
+        );
+        return (Streams<R>) this;
     }
 
-    /**
-     *Метод, который записывает данные из Stream в Map.
-     * @param key - лямбда выражение, на основе которой строится ключ Map
-     * @param value - лямбда выражение, на основе которой строится значение Map
-     * @return Map<K, V> streamMap
-     */
+    @Override
     public <K, V> Map<K, V> toMap(Function<? super T, ? extends K> key, Function<? super T, ? extends V> value) {
-
-        Map<K, V> streamMap = new HashMap();
-        for (T t : this.list) {
-            streamMap.put(key.apply(t), value.apply(t));
+        Streams stream = this;
+        while (!queueFunction.isEmpty()) {
+            stream = queueFunction.remove().apply(stream);
         }
+        Map<K, V> streamMap = new HashMap();
+        Collection<? extends T> source = stream.data;
+        source.forEach(element -> streamMap.put(key.apply(element), value.apply(element)));
         return streamMap;
+    }
+
+    public static <T> Streams<T> of(Collection<? extends T> source) {
+        return new Streams<>(source);
     }
 }
