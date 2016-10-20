@@ -1,4 +1,4 @@
-package steams;
+package streams;
 
 /**
  * Created by Valentina on 16.10.2016.

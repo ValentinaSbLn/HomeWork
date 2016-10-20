@@ -1,10 +1,9 @@
-package steams;
+package streams;
 
-import javax.swing.text.html.HTMLDocument;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * Created by Valentina on 15.10.2016.

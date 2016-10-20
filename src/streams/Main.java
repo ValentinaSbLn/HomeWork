@@ -1,9 +1,8 @@
-package steams;
+package streams;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * Created by Valentina on 16.10.2016.
