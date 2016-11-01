@@ -1,4 +1,4 @@
-package threads2.executionManager;
+package threads2.executionmanager;
 
 
 /**
@@ -10,7 +10,6 @@ public class ExecutionManagerImpl implements ExecutionManager{
 
         ThreadPoolWithContext context = new ThreadPoolWithContext(callback, tasks);
         context.start();
-        context.runCallBack();
         return context;
     }
 }

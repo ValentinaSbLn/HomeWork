@@ -1,4 +1,4 @@
-package threads2.executionManager;
+package threads2.executionmanager;
 
 /**
  * Created by Valentina on 28.10.2016.

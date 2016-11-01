@@ -1,111 +1,89 @@
-package threads2.executionManager;
+package threads2.executionmanager;
 
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Valentina on 28.10.2016.
  */
 public class ThreadPoolWithContext implements Context, ThreadPool {
-    private AtomicInteger CompletedTaskCount = new AtomicInteger(0);
-    private AtomicInteger FailedTaskCount = new AtomicInteger(0);
-    private int InterruptedTaskCount;
-
-    private final Object lock = new Object();
-    private volatile int size;
+    private final AtomicInteger completedTaskCount = new AtomicInteger(0);
+    private final AtomicInteger failedTaskCount = new AtomicInteger(0);
+    private int interruptedTaskCount;
+    private final int SIZE;
 
     private final Runnable callback;
     private final Queue<Runnable> taskList;
     private final List<Thread> threads = new ArrayList<>();
+    private volatile CountDownLatch countDown;
 
     public ThreadPoolWithContext(Runnable callback, Runnable... tasks) {
         this.callback = callback;
-        size = tasks.length;
+        SIZE = tasks.length;
         taskList = new LinkedList<>();
         taskList.addAll(Arrays.asList(tasks));
+        countDown = new CountDownLatch(SIZE);
     }
 
     public void start() {
-        for (int i = 0; i < size; i++) {
+        CallBack clb = new CallBack();
+        clb.start();
+
+        for (int i = 0; i < SIZE; i++) {
             threads.add(new Worker());
             threads.get(i).start();
         }
-        CallBack clb = new CallBack();
-        clb.start();
+
     }
 
     public void interrupt() {
         synchronized (threads) {
             threads.forEach(Thread::interrupt);
         }
-        InterruptedTaskCount = taskList.size();
-    }
-
-    public void runCallBack() {
-        while (threads.stream().filter(Thread::isAlive).findAny().isPresent()) {
-        }
-        synchronized (lock) {
-            lock.notifyAll();
-        }
-    }
-
-    @Override
-    public void execute(Runnable runnable) {
-        synchronized (taskList) {
-            taskList.add(runnable);
-            size = size + 1;
-        }
-        synchronized (threads) {
-            threads.add(new Worker());
-            threads.get(threads.size() - 1).start();
-        }
+        interruptedTaskCount = taskList.size();
     }
 
 
     @Override
     public int getCompletedTaskCount() {
-        return CompletedTaskCount.get();
+        return completedTaskCount.get();
     }
 
     private synchronized void addCompletedTaskCount() {
-        CompletedTaskCount.incrementAndGet();
+        completedTaskCount.incrementAndGet();
     }
 
     @Override
     public int getFailedTaskCount() {
-        return FailedTaskCount.get();
+        return failedTaskCount.get();
     }
 
     private synchronized void addFailedTaskCount() {
-        CompletedTaskCount.incrementAndGet();
+        completedTaskCount.incrementAndGet();
     }
 
     @Override
     public int getInterruptedTaskCount() {
-        return InterruptedTaskCount;
+        return interruptedTaskCount;
     }
 
     @Override
     public boolean isFinished() {
-        return size == getCompletedTaskCount() + getInterruptedTaskCount();
+        return SIZE == getCompletedTaskCount() + getInterruptedTaskCount();
     }
 
     private class CallBack extends Thread {
         @Override
         public void run() {
-
-            synchronized (lock) {
-                try {
-
-                    while (threads.stream().filter(Thread::isAlive).findFirst().isPresent()) {
-                        lock.wait();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                callback.run();
+            try {
+                countDown.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            callback.run();
+
         }
     }
 
@@ -124,6 +102,7 @@ public class ThreadPoolWithContext implements Context, ThreadPool {
             try {
                 r.run();
                 addCompletedTaskCount();
+                countDown.countDown();
             } catch (RuntimeException e) {
                 addFailedTaskCount();
             }
