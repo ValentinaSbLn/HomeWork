@@ -1,4 +1,4 @@
-package threads2.executionManager;
+package threads2.executionmanager;
 
 import java.util.List;
 import java.util.Random;
@@ -22,8 +22,11 @@ public class Main {
         }
         ExecutionManagerImpl emp= new ExecutionManagerImpl();
         Context cont=emp.execute(() ->System.out.println("Сколько остановок было?"), th);
-
-        cont.interrupt();
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println("Выполнено: "+cont.getCompletedTaskCount());
         System.out.println("С ошибкой: "+cont.getFailedTaskCount());
         System.out.println("Остановлено: "+cont.getInterruptedTaskCount());
